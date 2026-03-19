@@ -17,67 +17,34 @@ python main.py
 pytest
 ```
 
-## Деплой на VPS через WinSCP + systemd
+## Примечание о геоблокировке
 
-### 1. Загрузка файлов
+Яндекс.Музыка блокирует запросы с зарубежных IP-адресов (код 451).
+Бот работает только при запуске на территории России.
 
-Открой WinSCP, подключись к VPS по SFTP.
-Загрузи папку `bot/` на сервер, например в `/home/user/bot/`.
+## Запуск на Windows
 
-### 2. Установка Python и зависимостей
+### 1. Установка зависимостей
 
 ```bash
-sudo apt update && sudo apt install python3 python3-pip python3-venv -y
-cd /home/user/bot
-python3 -m venv venv
-source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Создание .env на сервере
+### 2. Создание .env
+
+Скопируй `.env.example` в `.env` и заполни токены:
+
+```
+TELEGRAM_BOT_TOKEN=токен_от_BotFather
+YANDEX_MUSIC_TOKEN=токен_яндекс_музыки
+```
+
+Как получить токен Яндекс.Музыки: https://github.com/MarshalX/yandex-music-api/discussions/513
+
+### 3. Запуск
 
 ```bash
-cp .env.example .env
-nano .env  # вставь реальный токен
+python main.py
 ```
 
-### 4. Создание systemd сервиса
-
-```bash
-sudo nano /etc/systemd/system/yamusic-bot.service
-```
-
-Содержимое файла:
-
-```ini
-[Unit]
-Description=Yandex Music Telegram Bot
-After=network.target
-
-[Service]
-Type=simple
-User=user
-WorkingDirectory=/home/user/bot
-ExecStart=/home/user/bot/venv/bin/python main.py
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### 5. Запуск сервиса
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable yamusic-bot
-sudo systemctl start yamusic-bot
-```
-
-### 6. Проверка статуса
-
-```bash
-sudo systemctl status yamusic-bot
-# Логи:
-sudo journalctl -u yamusic-bot -f
-```
+Бот будет работать пока открыт терминал.
